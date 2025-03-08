@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <base href="/public">
+    {% include 'components/header.html.twig' %}
+
+    <main class="main">
+
+        <div class="page-title">
+            <nav class="breadcrumbs">
+                <div class="container">
+                    <ol>
+                        <li><a href="{{ path('app_home') }}">Мої курси</a></li>
+                        <li class="current"><a>Оцінки по дисципліні</a></li>
+                    </ol>
+                </div>
+            </nav>
+        </div>
+
+        <div class="container mt-3">
+            <div class="tab-pane">
+                <div class="card p-3 border rounded">
+                    <h4><b>Оцінки по дисципліні</b></h4>
+                    <div class="table-responsive">
+                        <table class="table" style="border-radius: 8px; overflow: hidden;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Елемент оцінювання</th>
+                                    <th>Оцінка</th>
+                                    <th>Коментар</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for grade in grades %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ path('task_show', { id: grade.task.id }) }}">
+                                                {{ grade.task.category.categoryName }} {{ grade.task.title }}
+                                            </a>
+                                        </td>
+                                        <td>{{ grade.grade.score }}</td>
+                                        <td>{{ grade.grade.comment }}</td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center">Немає оцінок для цієї дисципліни</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td><strong>Загально за курс</strong></td>
+                                    <td><strong>{{ finalGrade|round(2) }}</strong></td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    {% include 'components/footer.html.twig' %}
+{% endblock %}

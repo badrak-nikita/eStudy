@@ -1,0 +1,221 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <base href="/public">
+    {% include 'components/header.html.twig' %}
+
+    <main class="main">
+
+        <div class="page-title">
+            <nav class="breadcrumbs">
+                <div class="container">
+                    <ol>
+                        <li><a href="{{ path('app_home') }}">Мої курси</a></li>
+                        <li class="current"><a>{{ course.courseName }}</a></li>
+                    </ol>
+                </div>
+            </nav>
+        </div>
+
+        <div class="container mt-5">
+            <h1 class="mb-5"><b>{{ course.courseName }}</b></h1>
+
+            <ul class="nav nav-tabs" id="courseTabs">
+                <li class="nav-item">
+                    <a class="nav-link active" id="course-tab" data-bs-toggle="tab" href="#course">Курс</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="participants-tab" data-bs-toggle="tab" href="#participants">Учасники</a>
+                </li>
+            </ul>
+
+            <div class="tab-content mt-3">
+
+                <div class="tab-pane fade show active" id="course">
+                    <div class="card p-3 border rounded">
+                        <h4><b>Опис курсу</b></h4>
+                        <p>{{ course.courseDescription }}</p>
+                    </div>
+
+                    <div class="card p-3 border rounded mt-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4><b>Завдання</b></h4>
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <div class="mb-3">
+                                    <a href="{{ path('task_create', { 'id': course.id }) }}" type="button" class="btn btn-outline-success d-flex align-items-center" style="border-color: green;">
+                                        Створити завдання
+                                        <img src="assets/img/add.png" alt="Add" style="width: 25px; height: 25px; margin-left: 5px;">
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% if tasks is empty %}
+                            <p>Завдання поки що відсутні</p>
+                        {% else %}
+                           {% for task in tasks %}
+                                <div class="border-top pt-2 pb-2">
+                                    <strong>
+                                        <a href="{{ path('task_show', { id: task.id }) }}">{{ task.category.categoryName }} {{ task.title }}</a>
+                                    </strong>
+                                    <br>
+                                    <small>Виконати до: <b>{{ task.dueDate ? task.dueDate|date('d.m.Y') : 'Без дедлайну' }}</b></small>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        <hr>
+                    </div>
+
+                </div>
+
+                <div class="tab-pane fade" id="participants">
+                    <div class="card p-3 border rounded">
+                        <h4><b>Список учасників</b></h4>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <button type="button" class="btn btn-outline-success mb-3" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+                                Додати студента
+                                <img src="assets/img/add.png" alt="Add" style="width: 25px; height: 25px; margin-left: 5px;">
+                            </button>
+                        {% endif %}
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center" style="width: 50px; border-top-left-radius: 8px;">#</th>
+                                    <th class="text-center">ПІБ</th>
+                                    <th class="text-center" style="border-top-right-radius: 8px;">Дія</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for courseStudent in students %}
+                                    <tr>
+                                        <td class="text-center">{{ loop.index }}</td>
+                                        <td>{{ courseStudent.student.name }}</td>
+                                        <td class="text-center">
+                                            {% if is_granted('ROLE_ADMIN') %}
+                                                <button class="btn btn-danger delete-student-btn" data-student-id="{{ courseStudent.student.id }}" data-course-id="{{ course.id }}">
+                                                    Видалити
+                                                </button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="addStudentModal" tabindex="-1" aria-labelledby="addStudentModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addStudentModalLabel">Додати студента</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="text" id="studentSearch" class="form-control mb-3" placeholder="Пошук студента...">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>ПІБ</th>
+                                            <th>Дія</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="studentsList">
+                                        {% for student in allStudents %}
+                                            <tr>
+                                                <td>{{ loop.index }}</td>
+                                                <td>{{ student.name }}</td>
+                                                <td>
+                                                    {% if student.id in addedStudentIds %}
+                                                        <button class="btn btn-secondary" disabled>
+                                                            Додати
+                                                        </button>
+                                                    {% else %}
+                                                        <button class="btn btn-success add-student-btn" data-student-id="{{ student.id }}">
+                                                            Додати
+                                                        </button>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </main>
+
+    {% include 'components/footer.html.twig' %}
+
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <div id="preloader"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("studentSearch");
+            const studentsList = document.getElementById("studentsList");
+
+            searchInput.addEventListener("input", function () {
+                const searchText = searchInput.value.toLowerCase();
+                const rows = studentsList.querySelectorAll("tr");
+
+                rows.forEach(row => {
+                    const nameCell = row.querySelector("td:nth-child(2)");
+                    if (nameCell) {
+                        const studentName = nameCell.textContent.toLowerCase();
+                        row.style.display = studentName.includes(searchText) ? "" : "none";
+                    }
+                });
+            });
+
+            document.querySelectorAll(".add-student-btn").forEach(button => {
+                button.addEventListener("click", function () {
+                    const studentId = this.dataset.studentId;
+                    const courseId = "{{ course.id }}";
+
+                    fetch(`/course/${courseId}/add-student/${studentId}`, {
+                        method: "POST",
+                        headers: { "X-Requested-With": "XMLHttpRequest" }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Студента додано!");
+                            location.reload();
+                        } else {
+                            alert("Помилка: " + data.error);
+                        }
+                    });
+                });
+            });
+
+            document.querySelectorAll(".delete-student-btn").forEach(button => {
+                button.addEventListener("click", function () {
+                    const studentId = this.dataset.studentId;
+                    const courseId = this.dataset.courseId;
+
+                    if (confirm("Ви впевнені, що хочете видалити студента з курсу?")) {
+                        fetch(`/course/${courseId}/remove-student/${studentId}`, {
+                            method: "POST",
+                            headers: { "X-Requested-With": "XMLHttpRequest" }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert("Студента видалено!");
+                                location.reload();
+                            } else {
+                                alert("Помилка: " + data.error);
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

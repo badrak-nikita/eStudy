@@ -3,35 +3,43 @@
 {% block title %}Реєстрація{% endblock %}
 
 {% block body %}
-<div class="col-lg-8">
-    <form action="forms/contact.php" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
-        <div class="row gy-4">
+    <link href="https://cdn.jsdelivr.net/npm/mdb-ui-kit@8.2.0/css/mdb.min.css"rel="stylesheet"/>
+    
+    <section class="vh-100">
+        <div class="container-fluid h-custom">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-md-9 col-lg-6 col-xl-5">
+                    <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp" class="img-fluid" alt="Sample image">
+                </div>
+                
+                <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+                    <h1 class="sitename">Створення акаунту</h1>
+                    <form action="{{ path('register') }}" method="POST">
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <input type="text" name="name" id="form3Example3" class="form-control form-control-lg border border-secondary"
+                            placeholder="Введiть логiн" />
+                            <label class="form-label" for="form3Example3">Логiн</label>
+                        </div>
 
-        <div class="col-md-6">
-            <input type="text" name="name" class="form-control" placeholder="Your Name" required="">
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <input type="password" name="password" id="form3Example4" class="form-control form-control-lg border border-secondary"
+                            placeholder="Введiть пароль" />
+                            <label class="form-label" for="form3Example3">Пароль</label>
+                        </div>
+
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <input type="email" name="email" id="form3Example4" class="form-control form-control-lg border border-secondary"
+                            placeholder="Введiть email" />
+                            <label class="form-label" for="form3Example3">Email</label>
+                        </div>
+
+                        <div class="text-center text-lg-start mt-4 pt-2">
+                            <button type="submit" class="btn btn-primary btn-lg" style="padding-left: 2.5rem; padding-right: 2.5rem;">Зареєструватися</button>
+                            <p class="small fw-bold mt-2 pt-1 mb-0">Вже маєте облiковий запис? <a href="{{ path('login') }}" class="link-danger">Вхiд</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-
-        <div class="col-md-6 ">
-            <input type="email" class="form-control" name="email" placeholder="Your Email" required="">
-        </div>
-
-        <div class="col-md-12">
-            <input type="text" class="form-control" name="subject" placeholder="Subject" required="">
-        </div>
-
-        <div class="col-md-12">
-            <textarea class="form-control" name="message" rows="6" placeholder="Message" required=""></textarea>
-        </div>
-
-        <div class="col-md-12 text-center">
-            <div class="loading">Loading</div>
-            <div class="error-message"></div>
-            <div class="sent-message">Your message has been sent. Thank you!</div>
-
-            <button type="submit">Send Message</button>
-        </div>
-
-        </div>
-    </form>
-</div>
+    </section>
 {% endblock %}

@@ -29,6 +29,9 @@ class Task
     #[ORM\JoinColumn(nullable: false)]
     private ?Category $category = null;
 
+    #[ORM\Column(type: 'date', nullable: true)]
+    private ?\DateTimeInterface $dueDate = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -79,6 +82,17 @@ class Task
     {
         $this->category = $category;
 
+        return $this;
+    }
+
+    public function getDueDate(): ?\DateTimeInterface
+    {
+        return $this->dueDate;
+    }
+
+    public function setDueDate(?\DateTimeInterface $dueDate): static
+    {
+        $this->dueDate = $dueDate;
         return $this;
     }
 }

@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <base href="/public">
+    {% include 'components/header.html.twig' %}
+
+    <main class="main">
+    
+        <div class="page-title" data-aos="fade">
+            <nav class="breadcrumbs">
+                <div class="container">
+                    <ol>
+                        <li class="current"><a href="{{ path('app_home') }}">Мої курси</a></li>
+                    </ol>
+                </div>
+            </nav>
+        </div>
+
+        <section id="contact" class="contact section mt-3">
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+            <div class="row gy-4">
+
+            <div class="col-lg-4">
+                <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="300">
+                <div>
+                    <h3>Створення нової дисципліни</h3>
+                    <p>Створіть нову дисципліну, вказавши її назву та опис</p>
+                </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <form action="{{ path('course_create') }}" method="POST" data-aos="fade-up" data-aos-delay="200">
+                    <div class="row gy-4">
+
+                        <div class="col-md-12">
+                            <input type="text" class="form-control" name="course_name" placeholder="Назва предмету" required="">
+                        </div>
+
+                        <div class="col-md-12">
+                            <textarea class="form-control" name="course_description" rows="6" placeholder="Опис"></textarea>
+                        </div>
+
+                        <div class="col-md-12 text-center">
+                            <button class="btn btn-success form-outline mb-4" style="border-color: green;" type="submit">Створити</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
+            </div>
+
+        </div>
+
+        </section>
+    </main>
+
+    {% include 'components/footer.html.twig' %}
+
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <div id="preloader"></div>
+{% endblock %}

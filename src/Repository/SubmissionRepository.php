@@ -3,12 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Submission;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
-/**
- * @extends ServiceEntityRepository<Submission>
- */
 class SubmissionRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -16,28 +13,18 @@ class SubmissionRepository extends ServiceEntityRepository
         parent::__construct($registry, Submission::class);
     }
 
-    //    /**
-    //     * @return Submission[] Returns an array of Submission objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('s.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Submission
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function findSubmissionsByStudentAndCourse($student, $course): array
+    {
+        return $this->createQueryBuilder('s')
+            ->select('s, g, t, c')
+            ->leftJoin('s.task', 't')
+            ->leftJoin('t.category', 'c')
+            ->leftJoin('s.grade', 'g')
+            ->andWhere('s.student = :student')
+            ->andWhere('t.course = :course')
+            ->setParameter('student', $student)
+            ->setParameter('course', $course)
+            ->getQuery()
+            ->getResult();
+    }
 }

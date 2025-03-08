@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,20 +16,24 @@ class RegistrationController extends AbstractController
     public function register(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
     {
         $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $user->setPassword($passwordHasher->hashPassword($user, $user->getPassword()));
+        if ($request->isMethod('POST')) {
+            $name = $request->request->get('name');
+            $email = $request->request->get('email');
+            $plainPassword = $request->request->get('password');
+
+            $user->setName($name);
+            $user->setEmail($email);
+            $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
+            $user->setPassword($hashedPassword);
             $user->setRoles(['ROLE_USER']);
+
             $entityManager->persist($user);
             $entityManager->flush();
 
             return $this->redirectToRoute('login');
         }
 
-        return $this->render('authorization/register.html.twig', [
-            'registrationForm' => $form->createView(),
-        ]);
+        return $this->render('authorization/register.html.twig');
     }
 }

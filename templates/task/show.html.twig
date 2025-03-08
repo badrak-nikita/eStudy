@@ -1,0 +1,246 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <base href="/public">
+    {% include 'components/header.html.twig' %}
+
+    <main class="main">
+
+        <div class="page-title">
+            <nav class="breadcrumbs">
+                <div class="container">
+                    <ol>
+                        <li><a href="{{ path('app_home') }}">Мої курси</a></li>
+                        <li><a href="{{ path('course_show', {id: course.id}) }}">{{ course.courseName }}</a></li>
+                        <li class="current"><a>{{ task.category.categoryName }} {{ task.title }}</a></li>
+                    </ol>
+                </div>
+            </nav>
+        </div>
+
+        <div class="container mt-3">
+            <h1 class="mb-5"><b>{{ task.category.categoryName }} {{ task.title }}</b></h1>
+            
+            <div class="tab-content mt-3">
+
+                <div class="tab-pane fade show active">
+                    <div class="card p-3 border rounded">
+                        <h4><b>Опис завдання</b></h4>
+                        <p>{{ task.description }}</p>
+                        <br>
+                        <p>Виконати до: <strong>{{ task.dueDate ? task.dueDate|date('d.m.Y') : 'Без дедлайну' }}</strong></p>
+                    </div>
+
+                    <div class="card p-3 border rounded mt-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4><b>Статус роботи</b></h4>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-center">
+                            <div class="mb-3" data-bs-toggle="tooltip" data-bs-placement="top"
+                                title="{% if submission %}Ви вже завантажили роботу{% endif %}">
+                                <button id="upload-btn"
+                                        class="btn btn-outline-success d-flex align-items-center {% if submission %}disabled{% endif %}"
+                                        style="border-color: green;">
+                                    Завантажити
+                                    <img src="{{ asset('assets/img/upload.png') }}" alt="Add"
+                                        style="width: 25px; height: 25px; margin-left: 5px;">
+                                </button>
+                                <input type="file" id="file-input" class="d-none" accept=".pdf,.doc,.docx,.png,.jpg">
+                            </div>
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <div class="mb-3 ms-3">
+                                    <button class="btn btn-outline-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                                        Перевiрка робiт
+                                        <img src="{{ asset('assets/img/check.png') }}" alt="Review"
+                                            style="width: 25px; height: 25px; margin-left: 5px;">
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="mt-3 d-flex justify-content-center">
+                            <table class="table table-bordered" style="width: 50%;">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Статус роботи:</th>
+                                         <td style="color: white; font-weight: bold;
+                                            {% if submission is null %}
+                                                background-color: gray;
+                                            {% elseif submission.status == 1 %}
+                                                background-color: orange;
+                                            {% elseif submission.status == 2 %}
+                                                background-color: green;
+                                            {% endif %}">
+                                            {% if submission is null %}
+                                                Не здано
+                                            {% elseif submission.status == 1 %}
+                                                Здано на перевірку
+                                            {% elseif submission.status == 2 %}
+                                                Оцінено
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Оцінка:</th>
+                                        <td>{{ grade ? grade.score : ' ' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Здано на перевірку:</th>
+                                        <td>{{ submission ? submission.createdDate|date('d.m.Y H:i') : ' ' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Перевірено:</th>
+                                        <td>{{ grade ? grade.ratedDate|date('d.m.Y H:i') : ' ' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Завантаження файлу:</th>
+                                        <td>{{ submission ? submission.filePath : ' ' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Коментарі викладача:</th>
+                                        <td>{{ grade ? grade.comment : ' ' }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Перевiрка робiт</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>№</th>
+                                <th>ПІБ</th>
+                                <th>Файл</th>
+                                <th>Оцінка</th>
+                                <th>Коментар</th>
+                                <th>Дія</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for submission in submissionsToCheck %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ submission.student.name }}</td>
+                                    <td>
+                                        <a href="{{ asset(submission.filePath) }}" target="_blank">Завантажити</a>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control grade-input" data-submission-id="{{ submission.id }}" min="0" max="100">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control comment-input" data-submission-id="{{ submission.id }}" placeholder="Коментар">
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-outline-success save-grade" data-submission-id="{{ submission.id }}">
+                                            <img src="{{ asset('assets/img/check.png') }}" alt="Review" style="width: 25px; height: 25px; margin-right: 5px;">
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Немає робіт для перевірки</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'components/footer.html.twig' %}
+
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <div id="preloader"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const uploadBtn = document.getElementById("upload-btn");
+            const fileInput = document.getElementById("file-input");
+
+            uploadBtn.addEventListener("click", function () {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener("change", function () {
+                const file = fileInput.files[0];
+                if (!file) return;
+
+                let formData = new FormData();
+                formData.append("file", file);
+
+                fetch("{{ path('submission_upload', { 'id': task.id }) }}", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert("Помилка: " + data.error);
+                    }
+                })
+                .catch(error => console.error("Помилка завантаження:", error));
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".save-grade").forEach(button => {
+                button.addEventListener("click", function () {
+                    let submissionId = this.getAttribute("data-submission-id");
+                    let inputField = document.querySelector(`.grade-input[data-submission-id="${submissionId}"]`);
+                    let commentField = document.querySelector(`.comment-input[data-submission-id="${submissionId}"]`);
+                    let gradeValue = inputField.value;
+                    let commentValue = commentField.value;
+
+                    if (!gradeValue) {
+                        alert("Будь ласка, введіть оцінку!");
+                        return;
+                    }
+
+                    fetch("/submission/" + submissionId + "/grade", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        body: JSON.stringify({ score: gradeValue, comment: commentValue })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            inputField.disabled = true;
+                            commentField.disabled = true;
+                            this.disabled = true;
+                            alert("Оцінка успішно збережена!");
+                        } else {
+                            alert("Помилка при збереженні оцінки!");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Помилка:", error);
+                    });
+                });
+            });
+        });
+    </script>
+{% endblock %}

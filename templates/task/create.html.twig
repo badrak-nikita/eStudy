@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <base href="/public">
+    {% include 'components/header.html.twig' %}
+
+    <main class="main">
+
+        <div class="page-title">
+            <nav class="breadcrumbs">
+                <div class="container">
+                    <ol>
+                        <li><a href="{{ path('app_home') }}">Мої курси</a></li>
+                        <li class="current"><a href="{{ path('course_show', {id: course.id}) }}">{{ course.courseName }}</a></li>
+                    </ol>
+                </div>
+            </nav>
+        </div>
+
+        <section id="contact" class="contact section mt-3">
+
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+            <div class="row gy-4">
+
+            <div class="col-lg-4">
+                <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="300">
+                <div>
+                    <h3>Створення нового завдання</h3>
+                    <p>Створіть нове завдання, вказавши його назву, опис та дату виконання</p>
+                </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <form action="{{ path('task_create', { 'id': course.id }) }}" method="POST" data-aos="fade-up" data-aos-delay="200">
+                    <div class="row gy-4 align-items-center">
+
+                        <div class="col-md-8">
+                            <select class="form-control" name="category_id" required>
+                                <option value="" disabled selected>Тип роботи</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.categoryName }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <input type="text" class="form-control text-center" name="title" placeholder="№" required="" style="max-width: 100px;">
+                        </div>
+
+                        <div class="col-md-6">
+                            <input type="date" class="form-control" name="due_date" required>
+                        </div>
+
+                        <div class="col-md-12">
+                            <textarea class="form-control" name="description" rows="6" placeholder="Опис"></textarea>
+                        </div>
+
+                        <div class="col-md-12 text-center">
+                            <button class="btn btn-success form-outline mb-4" style="border-color: green;" type="submit">Створити</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
+
+            </div>
+
+        </div>
+
+        </section>
+    </main>
+
+    {% include 'components/footer.html.twig' %}
+
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <div id="preloader"></div>
+{% endblock %}

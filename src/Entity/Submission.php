@@ -33,6 +33,9 @@ class Submission
     #[ORM\Column]
     private ?int $status = null;
 
+    #[ORM\OneToOne(targetEntity: Grade::class, mappedBy: 'submission')]
+    private ?Grade $grade = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -86,14 +89,30 @@ class Submission
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): ?int
     {
         return $this->status;
     }
 
-    public function setStatus(?string $status): static
+    public function setStatus(?int $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getGrade(): ?Grade
+    {
+        return $this->grade;
+    }
+
+    public function setGrade(?Grade $grade): static
+    {
+        $this->grade = $grade;
+        
+        if ($grade !== null && $grade->getSubmission() !== $this) {
+            $grade->setSubmission($this);
+        }
 
         return $this;
     }
